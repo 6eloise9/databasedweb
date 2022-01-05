@@ -1,14 +1,22 @@
-import "./App.css";
+import "./App.css"
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
+import Login from "./pages/Login"
 
 function App() {
-  const title = "Dialog - Diabetes Monitoring App";
   return (
     <div className="App">
-      <div className="content">
-        <h1>{title}</h1>
-      </div>
+      <Router>
+        <Routes>
+          <Route path="/" element = {<h1>HomePage</h1>} />
+          <Route path="/login" element={<Login/>} />
+        </Routes>
+      </Router>
+
     </div>
-  );
+
+  )
 }
 
-export default App;
+
+
+export default App
