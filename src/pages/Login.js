@@ -1,21 +1,48 @@
-import React from "react"
+import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components"
 import NHSbar from "../components/NHSbar"
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../utils/auth'
 
 export default function Login() {
-  const onClick = null
-  const onPasswordButtonClick = null
+  const emailInput  = useRef()
+  const passwordInput = useRef()
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuth()
+  const navigate = useNavigate()
+  const [isHovering, setIsHovering] = useState(false)
+
+  {/*From "React Authentication Crash COurse with Firebase and Routing:"*/}
+  const onSubmitClick = async (event) => {
+    event.preventDefault()
+    try{
+      setError('')
+      setIsLoading(true)
+      await login(emailInput.current.value, passwordInput.current.value)
+      navigate('/')
+    } catch {
+        setError("Login failed - please check credentials")
+    }
+    setIsLoading(false)
+  }
+
+
+
   return (
     <Background>
       <NHSbar />
       <MainContainer>
-        <TextLabel>Dialog Diabetes Monitoring - Login</TextLabel>
+        <TextLabel>Dialog Diabetic Patient Monitoring - Staff Login</TextLabel>
+        {error && <Error>{error}</Error>}
         <Form>
           {/* EMAIL */}
           <InputContainer>
             <Input
               placeholder='email'
               type = 'text'
+              ref = {emailInput}
+              required
             />
           </InputContainer>
           {/* PASSWORD */}
@@ -23,10 +50,18 @@ export default function Login() {
             <Input
               placeholder='password'
               type = 'password'
+              ref = {passwordInput}
+              required
             />
             <SubmitButton
-              onClick={onPasswordButtonClick}
-            >Log in</SubmitButton>
+            onMouseEnter = {()=> setIsHovering(true)}
+            onMouseLeave = {() => setIsHovering(false)}
+            isHovering = {isHovering}
+            disabled = {isLoading}
+            type = "submit"
+            onClick = {onSubmitClick}>
+            Log in
+            </SubmitButton>
           </InputContainer>
         </Form>
       </MainContainer>
@@ -79,8 +114,10 @@ const SubmitButton = styled.button`
   border: none;
   text-decoration: none;
   border-radius: 10px;
+  cursor: pointer;
   width:100px;
   height: 30px;
+  ${(props) => props.isHovering && 'background: #0D318D;'}
 `
 
 const Form = styled.form`
@@ -93,4 +130,17 @@ const TextLabel = styled.div`
   color:black;
   text-align: left;
   top: 50px;
+`
+const Error = styled.div`
+  position: relative;
+  background #FF000090 ;
+  width: 400px;
+  height: 30px;
+  top: 120px;
+  left: 20px;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  font-size: 20px;
+
 `
