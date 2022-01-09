@@ -9,9 +9,11 @@ export default function Login() {
   const passwordInput = useRef()
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
+  const { user, login } = useAuth()
   const navigate = useNavigate()
   const [isHovering, setIsHovering] = useState(false)
+
+
 
   {/*From "React Authentication Crash COurse with Firebase and Routing:"*/}
   const onSubmitClick = async (event) => {
@@ -35,11 +37,12 @@ export default function Login() {
       <MainContainer>
         <TextLabel>Dialog Diabetic Patient Monitoring - Staff Login</TextLabel>
         {error && <Error>{error}</Error>}
+
         <Form>
           {/* EMAIL */}
           <InputContainer>
             <Input
-              placeholder='email'
+              placeholder= 'email'
               type = 'text'
               ref = {emailInput}
               required
