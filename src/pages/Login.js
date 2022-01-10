@@ -3,6 +3,8 @@ import styled from "styled-components"
 import NHSbar from "../components/NHSbar"
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../utils/auth'
+import { db } from '../utils/firebase'
+import {query, where} from "firebase/firestore"
 
 export default function Login() {
   const emailInput  = useRef()
@@ -22,6 +24,10 @@ export default function Login() {
       setError('')
       setIsLoading(true)
       await login(emailInput.current.value, passwordInput.current.value)
+      const querySnap = await query(db.collections("Doctors"), where("UID", "=", user.uid)).get()
+      if(querySnap.empty()){
+        throw new Error("Not a Doctor")
+      }
       navigate('/')
     } catch {
         setError("Login failed - please check credentials")

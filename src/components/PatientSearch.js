@@ -5,8 +5,10 @@ import { db } from '../utils/firebase'
 export default function PatientSearch(){
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
+  const [selectedPatient, setSelectedPatient] = useState()
   const [input, setInput] = useState('');
-  const [selectedResult, setSelectedResult] = useState()
+  const [patientDisplay, setPatientDisplay]=useState(["","","","","",""])
+ 
   const fetch = async () => {
     {/*fetches data from database*/}
     const patientsRef = await db.collection('TestPat')
@@ -40,6 +42,16 @@ export default function PatientSearch(){
 
   }
 
+  async function displayPatient(value){
+    const temp = patientDisplay
+    temp[0] = value.NHSNumber
+    temp[1] = value.fName
+    temp[2] = value.lName
+    temp[3] = value.DiabetesType
+    temp[4] = value.DoctorEmail
+    setPatientDisplay(temp)
+  }
+
   return(
     <MainContainer>
 
@@ -63,12 +75,21 @@ export default function PatientSearch(){
         <ResultBox>
         {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
 
-          return (<ResultItem>{value.fName} {value.lName}</ResultItem>)
+          return (<ResultItem onClick={() => {displayPatient(value); setSelectedPatient(value)}}>{value.fName} {value.lName}</ResultItem>)
 
         })}
         </ResultBox>
         <MonitorButton>Monitor Patient</MonitorButton>
       </RightContainer>
+      <InfoContainer>
+        <Title>Selected Patient: {patientDisplay[0]}</Title>
+        <TextLabel>First Name: {patientDisplay[1]}</TextLabel>
+        <TextLabel>Last Name: {patientDisplay[2]}</TextLabel>
+        <TextLabel>Diabetes Type: {patientDisplay[3]}</TextLabel>
+        <TextLabel>General Doctor: {patientDisplay[4]}</TextLabel>
+        
+
+      </InfoContainer>
     </MainContainer>
   )
 }
@@ -77,7 +98,7 @@ export default function PatientSearch(){
 const MainContainer = styled.div`
   position: relative;
   display: flex;
-  width: 650px;
+  width: 1000px;
   height: 315px;
   background: #C4C4C4;
 
@@ -101,7 +122,7 @@ const RightContainer = styled.div`
 
 const Title = styled.div`
 position: relative;
-font-size: 25px;
+font-size: 20px;
 color:black;
 text-align: left;
 margin-bottom: 10px;
@@ -139,6 +160,9 @@ const ResultItem = styled.div`
     text-color: white;
     border: 1px dashed black;
   }
+  &:hover{
+    background: #005EB890
+  }
 `
 
 const ResultBox = styled.div`
@@ -159,6 +183,23 @@ const MonitorButton = styled.button`
   margin-top: 5px;
   cursor: pointer;
 `
+const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: white;
+  width: 300px;
+  margin: 20px;
+  padding: 13px;
+`
+
+const TextLabel = styled.div`
+  position: relative;
+  font-size: 15px;
+  color:black;
+  text-align: left;
+  top: 50px;
+`
+
 {/*
 patients && patients.map(patient =>{
   return(
