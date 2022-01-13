@@ -3,6 +3,9 @@ import styled from "styled-components"
 import NHSbar from "../components/NHSbar"
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../utils/auth'
+import { auth, db } from '../utils/firebase'
+import {collection,query, where, getDocs} from "firebase/firestore"
+import "firebase/compat/auth"
 
 export default function Login() {
   const emailInput  = useRef()
@@ -21,9 +24,21 @@ export default function Login() {
     try{
       setError('')
       setIsLoading(true)
+
+      if(auth.currentUser==null){
+        auth.signOut()
+      }
+
       await login(emailInput.current.value, passwordInput.current.value)
+
+      const querySnap = await getDocs(query(collection(db,"Doctors"), where("UID", "==", auth.currentUser.uid)))
+     if(querySnap.empty){
+       throw new Error("Not a Doctor")
+     }
+
       navigate('/')
-    } catch {
+    } catch (e) {
+      console.log(e)
         setError("Login failed - please check credentials")
     }
     setIsLoading(false)
@@ -71,6 +86,9 @@ export default function Login() {
     </Background>
   )
 }
+
+
+
 
 const Background = styled.div`
   position: flex;
@@ -145,5 +163,4 @@ const Error = styled.div`
   color: white;
   text-align: center;
   font-size: 20px;
-
 `
