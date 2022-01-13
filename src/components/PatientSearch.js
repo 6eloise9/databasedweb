@@ -6,7 +6,8 @@ export default function PatientSearch(){
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
   const [input, setInput] = useState('');
-  const [selectedResult, setSelectedResult] = useState()
+  const [selectedPatient, setSelectedPatient] = useState([])
+
   const fetch = async () => {
     {/*fetches data from database*/}
     const patientsRef = await db.collection('TestPat')
@@ -36,8 +37,10 @@ export default function PatientSearch(){
     const searchseq = e.target.value
   }
 
-  const handleResultsClick = (e) => {
 
+  async function onPatientClick(value){
+    const temp = value
+    setSelectedPatient(temp)
   }
 
   return(
@@ -48,6 +51,7 @@ export default function PatientSearch(){
 
         <form action="/" method="get">
           <SearchText>Search by NHS number</SearchText>
+          <SearchText>{selectedPatient.NHSNumber}</SearchText>
           <Input
            type="text"
            placeholder="NHS number (start typing)"
@@ -63,7 +67,8 @@ export default function PatientSearch(){
         <ResultBox>
         {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
 
-          return (<ResultItem>{value.fName} {value.lName}</ResultItem>)
+          return (<ResultItem onClick={() => {setSelectedPatient(value); onPatientClick(value)}}>
+          {value.fName} {value.lName}</ResultItem>)
 
         })}
         </ResultBox>
