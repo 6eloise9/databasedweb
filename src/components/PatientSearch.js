@@ -28,8 +28,6 @@ export default function PatientSearch(){
       return value.NHSNumber.includes(searchseq)
     })
     setFilteredPatients(newPat)
-
-    console.log('changed!')
   }
 
   const handleSubmit = async (e) => {
@@ -41,6 +39,7 @@ export default function PatientSearch(){
   async function onPatientClick(value){
     const temp = value
     setSelectedPatient(temp)
+    return 1
   }
 
   return(
@@ -51,7 +50,6 @@ export default function PatientSearch(){
 
         <form action="/" method="get">
           <SearchText>Search by NHS number</SearchText>
-          <SearchText>{selectedPatient.NHSNumber}</SearchText>
           <Input
            type="text"
            placeholder="NHS number (start typing)"
@@ -65,12 +63,15 @@ export default function PatientSearch(){
       <RightContainer>
         <SearchText>Search Results</SearchText>
         <ResultBox>
-        {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
-
-          return (<ResultItem onClick={() => {setSelectedPatient(value); onPatientClick(value)}}>
-          {value.fName} {value.lName}</ResultItem>)
-
-        })}
+          {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
+            return (
+              <ResultItem
+                onClick={() => {setSelectedPatient(value); onPatientClick(value);}}
+                nhsNum = {value.NHSNumber}
+                currentlySelected={selectedPatient.NHSNumber}>
+                {value.fName} {value.lName}</ResultItem> )
+          })
+        }
         </ResultBox>
         <MonitorButton>Monitor Patient</MonitorButton>
       </RightContainer>
@@ -105,22 +106,22 @@ const RightContainer = styled.div`
 `
 
 const Title = styled.div`
-position: relative;
-font-size: 25px;
-color:black;
-text-align: left;
-margin-bottom: 10px;
-`
-const Input = styled.input`
-  width: 100%;
-  height: 30px;
-  color: #000000;
-  border: 0;
-  line-height: 120%;
-  font-size: 20px;
+  position: relative;
+  font-size: 25px;
+  color:black;
+  text-align: left;
   margin-bottom: 10px;
-  margin-top: 4px;
-  padding: 0 10px;
+  `
+  const Input = styled.input`
+    width: 100%;
+    height: 30px;
+    color: #000000;
+    border: 0;
+    line-height: 120%;
+    font-size: 20px;
+    margin-bottom: 10px;
+    margin-top: 4px;
+    padding: 0 10px;
 `
 
 const SearchText = styled.div`
@@ -132,18 +133,13 @@ const SearchText = styled.div`
   margin-bottom: 5px;
 `
 
-
 const ResultItem = styled.div`
-
   text-align: left;
-  margin: 5px 0;
+  border: 1px dashed white;
+  margin: 2px 0;
   font-size: 15px;
   cursor: pointer;
-  .selected {
-    background: #005EB890;
-    text-color: white;
-    border: 1px dashed black;
-  }
+  ${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
 `
 
 const ResultBox = styled.div`
@@ -164,10 +160,3 @@ const MonitorButton = styled.button`
   margin-top: 5px;
   cursor: pointer;
 `
-{/*
-patients && patients.map(patient =>{
-  return(
-    <p>{patient.fName}</p>
-  )
-})
-*/}
