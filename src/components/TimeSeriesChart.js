@@ -11,13 +11,13 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Label,
 } from 'recharts'
 
 //This is code minorly adapted from the code produced by github user dsandmark (Dennis Sandmark)
 //which can be found here: https://github.com/recharts/recharts/issues/956
 //all credit for the below code goes to him
-
-const TimeSeriesChart = ({ chartData }) => (
+const TimeSeriesChart = ({ chartData, chartYAxis}) => (
   <ResponsiveContainer height = '95%' width = {500} >
     <ScatterChart>
       <XAxis
@@ -26,8 +26,12 @@ const TimeSeriesChart = ({ chartData }) => (
         name = 'Time'
         tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
         type = 'number'
-      />
-      <YAxis dataKey = 'value' name = 'Value' />
+        stroke = "blue"
+      ><Label value="Time" offset={0} position="insideBottom"></Label></XAxis>
+      <YAxis dataKey = 'value' name = 'Value' stroke = "blue">
+          <Label value= {chartYAxis} angle={-90} position="insideLeft" ></Label>
+      </YAxis>
+          
 
       <Scatter
         data = {chartData}
