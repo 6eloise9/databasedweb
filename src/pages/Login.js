@@ -25,6 +25,7 @@ export default function Login() {
       setError('')
       setIsLoading(true)
 
+
       if(auth.currentUser==null){
         auth.signOut()
       }
