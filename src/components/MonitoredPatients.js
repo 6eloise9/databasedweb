@@ -8,7 +8,8 @@ export default function MonitoredPatients(){
   const [monitoredPatients, setMonitoredPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState([])
   const [monitoredPatientNums, setMonitoredPatientNums] = useState([])
-
+  const [filteredPatients, setFilteredPatients] = useState([])
+  const [isFiltering, setIsFiltering] = useState(false)
   const fetchPatientNums = async () => {
     {/*fetches data from database*/}
     const drRef = await db.collection('Doctors')
@@ -23,17 +24,15 @@ export default function MonitoredPatients(){
     })
   }
 
-  const fetchPatients = async () => {
+  const fetchPatients = () => {
     const pRef = db.collection('TestPat')
     pRef.onSnapshot(snapshot => {
       let pqueryRef = pRef.where('NHSNumber', 'in', monitoredPatientNums).get().then(query => {
-        console.log(pqueryRef)
         const patDocs = query.docs
         let array = []
         for (let x in patDocs){
         array[x] = patDocs[x].data()
         }
-        console.log(array)
         setMonitoredPatients(array)
       })
     })
@@ -50,13 +49,31 @@ export default function MonitoredPatients(){
     setSelectedPatient(temp)
   }
 
+  const searchFilter = async (e) => {
+    const searchseq = e.target.value.toLowerCase()
+    const newPat = monitoredPatients.filter((value) => {
+      const fullName = value.fName + value.lName
+      return fullName.toLowerCase().includes(searchseq)
+    })
+    setFilteredPatients(newPat)
+    setIsFiltering(true)
+  }
+
   return(
     <Card>
       <Container>
         <Title>Patients you are monitoring</Title>
         <WhiteContainer>
+        <Form action="/" method="get">
+          <Text>Search by name</Text>
+          <Input
+           type="text"
+           placeholder="Patient Name"
+           onChange = {searchFilter}
+          />
+       </Form>
           <ResultBox>
-            {monitoredPatients.length != 0 && monitoredPatients.map((value,key) => {
+            {monitoredPatients.length != 0 && !isFiltering && monitoredPatients.map((value,key) => {
               return (
                 <ResultItem
                   onClick={() => {setSelectedPatient(value); onPatientClick(value)}}
@@ -65,6 +82,15 @@ export default function MonitoredPatients(){
                   {value.fName} {value.lName}</ResultItem> )
               })
           }
+          {monitoredPatients.length != 0 && isFiltering && filteredPatients.map((value,key) => {
+            return (
+              <ResultItem
+                onClick={() => {setSelectedPatient(value); onPatientClick(value)}}
+                nhsNum = {value.NHSNumber}
+                currentlySelected={selectedPatient.NHSNumber}>
+                {value.fName} {value.lName}</ResultItem> )
+            })
+        }
           </ResultBox>
         </WhiteContainer>
         <ButtonBox>
@@ -87,13 +113,11 @@ const Card = styled.div`
   width: 40vw;
   min-height: 300px;
   background: #C4C4C4;
-  margin-top: 20px;
+
 `
 
 const Container = styled.div`
   margin: 20px;
-
-
 `
 const Title = styled.div`
   position: relative;
@@ -105,17 +129,19 @@ const Title = styled.div`
 
 const WhiteContainer = styled.div`
   display: flex;
+  align-content: flex-start;
   flex-direction: column;
   background: white;
   width: 95%;
-  padding: 13px;
+  padding: 5px;
+  min-height: 200px;
 `
 
 const ResultBox = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  height: 100%
+  min-height: 200px;
 `
 
 const ResultItem = styled.div`
@@ -169,4 +195,24 @@ const UnmonitorButton = styled.button`
   margin-top: 5px;
   cursor: pointer;
   ${(props) => (props.selected.length == 0 && 'visibility: hidden')}
+`
+const Input = styled.input`
+  width: 30%;
+  height: 25px;
+  color: #000000;
+  border: 0;
+  line-height: 120%;
+  font-size: 18px;
+  margin-bottom: 10px;
+  margin-top: 4px;
+  padding: 0 10px;
+  border: 1px solid black;
+  align-self: flex-start;
+`
+const Form = styled.form`
+  padding: none;
+  margin:none;
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
 `

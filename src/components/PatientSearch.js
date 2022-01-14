@@ -142,14 +142,13 @@ const MainContainer = styled.div`
   width: 40vw;
   height: 315px;
   background: #C4C4C4;
-
 `
 
 const LeftContainer = styled.div`
   display: flex;
   position: relative;
   flex-direction: column;
-  min-width: 45%;
+  min-width: 40%;
   margin: 20px;
 `
 
@@ -157,7 +156,7 @@ const RightContainer = styled.div`
   display: flex;
   flex-direction: column;
   background: white;
-  width: 50%;
+  width: 55%;
   margin: 20px;
   padding: 13px;
 `
@@ -175,7 +174,7 @@ const Input = styled.input`
   color: #000000;
   border: 0;
   line-height: 120%;
-  font-size: 20px;
+  font-size: 15px;
   margin-bottom: 10px;
   margin-top: 4px;
   padding: 0 10px;

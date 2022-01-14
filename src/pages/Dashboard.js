@@ -6,9 +6,11 @@ import PatientSearch from '../components/PatientSearch'
 import MonitoredPatients from '../components/MonitoredPatients'
 import {useAuth} from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
+import { auth, db } from '../utils/firebase'
 
 export default function Dashboard(props){
-  const[error, setError] = useState('')
+  const [error, setError] = useState('')
+  const [doctor, setDoctor] = useState({})
   const {currentUser, logout} = useAuth()
   const navigate = useNavigate()
   const [isHovering, setIsHovering] = useState(false)
@@ -23,13 +25,29 @@ export default function Dashboard(props){
     }
   }
 
+  const getDoctor = async () => {
+    const ref = db.collection('Doctors')
+    const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
+      const drDoc = query.docs[0]
+      const drData = drDoc.data()
+      if((drData.lName != null) || (drData.fName != null)){
+        setDoctor(drData)
+      }
+    })
+  }
+
+  useEffect(() => {
+  {/* code here will run when page loads*/}
+   getDoctor()
+  }, [])
+
   return(
 
   <Background>
     <NHSbar/>
     <ProfileBar
-      fname = "Nettles"
-      lname = "Holloway"
+      fname = {doctor.fName}
+      lname = {doctor.lName}
       onLogoutClick = {onLogoutClick}
     />
       <MainContainer>
@@ -55,7 +73,8 @@ const TextLabel = styled.div`
   margin-bottom: 100px;
 `
 const MainContainer = styled.div`
-  position: flex;
+  display: flex;
   flex-direction:column;
+  justify-content: space-around;
   margin-left: 60px;
 `
