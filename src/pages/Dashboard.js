@@ -6,7 +6,7 @@ import PatientSearch from '../components/PatientSearch'
 import {useAuth} from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 
-export default function Dashboard(){
+export default function Dashboard(props){
   const[error, setError] = useState('')
   const {currentUser, logout} = useAuth()
   const navigate = useNavigate()

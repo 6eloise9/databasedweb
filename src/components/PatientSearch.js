@@ -1,12 +1,19 @@
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components"
-import { db } from '../utils/firebase'
+import { auth, db } from '../utils/firebase'
+import { getDatabase } from "firebase/database";
+import { collection, query, where, getDocs} from "firebase/firestore"
+import "firebase/compat/auth"
+
 
 export default function PatientSearch(){
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
   const [input, setInput] = useState('');
   const [selectedPatient, setSelectedPatient] = useState([])
+  const [error, setError] = useState('')
+
+  const database = getDatabase()
 
   const fetch = async () => {
     {/*fetches data from database*/}
@@ -18,9 +25,58 @@ export default function PatientSearch(){
 
   useEffect(() => {
   {/* code here will run when page loads*/}
-   fetch();
+   fetch()
   }, [])
 
+  const updateFollowingList = async (newpatientnum) => {
+    const ref = db.collection('Doctors')
+    const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
+      const drDoc = query.docs[0]
+      let drData = drDoc.data()
+      if(drData.Following != null){
+        const oldFollow = drData.Following
+        if(!oldFollow.includes(newpatientnum)){
+          drData.Following = [...oldFollow, newpatientnum]
+          drDoc.ref.update(drData)
+          updatePatientAlerts(drData)
+        } else {
+          setError('You are already monitoring this patient')
+        }
+      } else {
+        drDoc.ref.update(
+          {Following: [newpatientnum]}
+        )
+      }
+    })
+  }
+
+  const updatePatientAlerts = async (doctor) => {
+    console.log(doctor.email)
+    if (doctor.email == null){
+      setError('Your account has no associated email. Alerts will not reach you. Contact Admin')
+    } else {
+      const ref = db.collection('TestPat')
+      const queryRef = await ref.where('NHSNumber', '==', selectedPatient.NHSNumber).limit(1).get().then(query => {
+        const patDoc = query.docs[0]
+        let patData = patDoc.data()
+        console.log(patData)
+        if(patData.Alerts != null){
+          const oldAlerts = patData.Alerts
+          const oldAlertsLC = oldAlerts.map(alert => alert.toLowerCase())
+          if(!oldAlertsLC.includes(doctor.email.toLowerCase())){
+            patData.Alerts = [...oldAlerts, doctor.email]
+            patDoc.ref.update(patData)
+          } else {
+            setError('Please contact admin. Error: alerts and following out of sync')
+          }
+        } else {
+          patDoc.ref.update(
+            {Alerts: [doctor.email]}
+          )
+        }
+      })
+    }
+  }
 
   const handleChange = async (e) => {
     const searchseq = e.target.value
@@ -39,7 +95,6 @@ export default function PatientSearch(){
   async function onPatientClick(value){
     const temp = value
     setSelectedPatient(temp)
-    return 1
   }
 
   return(
@@ -57,7 +112,7 @@ export default function PatientSearch(){
           />
 
        </form>
-
+       {error && <Error>{error}</Error>}
       </LeftContainer>
 
       <RightContainer>
@@ -66,14 +121,18 @@ export default function PatientSearch(){
           {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
             return (
               <ResultItem
-                onClick={() => {setSelectedPatient(value); onPatientClick(value);}}
+                onClick={() => {setSelectedPatient(value); onPatientClick(value); setError('')}}
                 nhsNum = {value.NHSNumber}
                 currentlySelected={selectedPatient.NHSNumber}>
                 {value.fName} {value.lName}</ResultItem> )
           })
         }
         </ResultBox>
-        <MonitorButton>Monitor Patient</MonitorButton>
+        <ButtonBox>
+          <MonitorButton selected={selectedPatient} onClick = {() => updateFollowingList(selectedPatient.NHSNumber)}>Monitor Patient</MonitorButton>
+          <MonitorButton selected={selectedPatient}>View Patient</MonitorButton>
+        </ButtonBox>
+
       </RightContainer>
     </MainContainer>
   )
@@ -136,9 +195,13 @@ const SearchText = styled.div`
 const ResultItem = styled.div`
   text-align: left;
   border: 1px dashed white;
-  margin: 2px 0;
+  /* margin: 2px 0; */
   font-size: 15px;
   cursor: pointer;
+  &:hover{
+    background: #005EB870;
+    border: 1px solid #005EB890 ;
+  }
   ${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
 `
 
@@ -147,16 +210,32 @@ const ResultBox = styled.div`
   flex-direction: column;
   overflow-y: scroll;
   height: 100%
-
+`
+const ButtonBox = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 `
 
 const MonitorButton = styled.button`
   height: 40px;
-  width: 50%;
+  width: 48%;
   background: #005EB890;
   border: 2px solid black;
   text-decoration: none;
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey')}
+`
+const Error = styled.div`
+  position: relative;
+  background #FF000090 ;
+  /* width: 400px; */
+  /* height: 30px; */
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  font-size: 15px;
+
 `

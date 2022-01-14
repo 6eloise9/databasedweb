@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import { ProvideAuth, useAuth } from './utils/auth'
 
 function App() {
+
   return (
     <ProvideAuth>
       <div className="App">
@@ -22,7 +23,7 @@ function App() {
 }
 
 function PrivateRoute({ children }) {
-  const { currentUser }= useAuth()
+  const { currentUser } = useAuth()
   return currentUser ? children : <Navigate to='/login'/>
 }
 
