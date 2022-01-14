@@ -5,9 +5,11 @@ import { collection, query, where, getDocs} from "firebase/firestore"
 import "firebase/compat/auth"
 
 
-export default function PatientSearch(){
+export default function PatientSearch({returnPatient, returnSelected}){
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
+  const [selectedPatient, setSelectedPatient] = useState()
+  const [isPatientSelected, patientSelected] = useState(false)
   const [input, setInput] = useState('');
   const [selectedPatient, setSelectedPatient] = useState([])
   const [error, setError] = useState('')
@@ -94,6 +96,7 @@ export default function PatientSearch(){
     setSelectedPatient(temp)
   }
 
+
   return(
     <MainContainer>
 
@@ -115,6 +118,7 @@ export default function PatientSearch(){
       <RightContainer>
         <SearchText>Search Results</SearchText>
         <ResultBox>
+
           {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
             return (
               <ResultItem
@@ -167,6 +171,7 @@ const Title = styled.div`
   color:black;
   text-align: left;
   margin-bottom: 10px;
+
 `
 const Input = styled.input`
   width: 100%;
