@@ -13,6 +13,10 @@ import {
   YAxis,
 } from 'recharts'
 
+//This is code minorly adapted from the code produced by github user dsandmark (Dennis Sandmark)
+//which can be found here: https://github.com/recharts/recharts/issues/956
+//all credit for the below code goes to him
+
 const TimeSeriesChart = ({ chartData }) => (
   <ResponsiveContainer height = '95%' width = {500} >
     <ScatterChart>
