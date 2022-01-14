@@ -2,10 +2,11 @@ import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components"
 import { db } from '../utils/firebase'
 
-export default function PatientSearch(){
+export default function PatientSearch({returnPatient, returnSelected}){
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState()
+  const [isPatientSelected, patientSelected] = useState(false)
   const [input, setInput] = useState('');
   const [patientDisplay, setPatientDisplay]=useState(["","","","","",""])
  
@@ -38,11 +39,7 @@ export default function PatientSearch(){
     const searchseq = e.target.value
   }
 
-  const handleResultsClick = (e) => {
-
-  }
-
-  async function displayPatient(value){
+  async function handleResultsClick(value){
     const temp = patientDisplay
     temp[0] = value.NHSNumber
     temp[1] = value.fName
@@ -50,7 +47,12 @@ export default function PatientSearch(){
     temp[3] = value.DiabetesType
     temp[4] = value.DoctorEmail
     setPatientDisplay(temp)
+    patientSelected(true)
+    console.log(value)
+    returnPatient(value)
+    returnSelected(true)
   }
+
 
   return(
     <MainContainer>
@@ -75,11 +77,10 @@ export default function PatientSearch(){
         <ResultBox>
         {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
 
-          return (<ResultItem onClick={() => {displayPatient(value); setSelectedPatient(value)}}>{value.fName} {value.lName}</ResultItem>)
+          return (<ResultItem onClick={() => {handleResultsClick(value); setSelectedPatient(value)}}>{value.fName} {value.lName}</ResultItem>)
 
         })}
         </ResultBox>
-        <MonitorButton>Monitor Patient</MonitorButton>
       </RightContainer>
       <InfoContainer>
         <Title>Selected Patient: {patientDisplay[0]}</Title>
@@ -87,8 +88,10 @@ export default function PatientSearch(){
         <TextLabel>Last Name: {patientDisplay[2]}</TextLabel>
         <TextLabel>Diabetes Type: {patientDisplay[3]}</TextLabel>
         <TextLabel>General Doctor: {patientDisplay[4]}</TextLabel>
-        
-
+        <MonitorButton 
+        hidden={!isPatientSelected}>Track Patient</MonitorButton>
+        <MonitorButton
+        hidden={!isPatientSelected}>View Patient</MonitorButton>
       </InfoContainer>
     </MainContainer>
   )
@@ -193,7 +196,7 @@ const InfoContainer = styled.div`
 `
 
 const TextLabel = styled.div`
-  position: relative;
+  position: top;
   font-size: 15px;
   color:black;
   text-align: left;
