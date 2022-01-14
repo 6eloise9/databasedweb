@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components"
 import { auth, db } from '../utils/firebase'
-import { getDatabase } from "firebase/database";
 import { collection, query, where, getDocs} from "firebase/firestore"
 import "firebase/compat/auth"
 
@@ -12,8 +11,6 @@ export default function PatientSearch(){
   const [input, setInput] = useState('');
   const [selectedPatient, setSelectedPatient] = useState([])
   const [error, setError] = useState('')
-
-  const database = getDatabase()
 
   const fetch = async () => {
     {/*fetches data from database*/}
@@ -142,7 +139,7 @@ export default function PatientSearch(){
 const MainContainer = styled.div`
   position: relative;
   display: flex;
-  width: 650px;
+  width: 40vw;
   height: 315px;
   background: #C4C4C4;
 
@@ -150,8 +147,9 @@ const MainContainer = styled.div`
 
 const LeftContainer = styled.div`
   display: flex;
+  position: relative;
   flex-direction: column;
-  min-width: 300px;
+  min-width: 45%;
   margin: 20px;
 `
 
@@ -159,7 +157,7 @@ const RightContainer = styled.div`
   display: flex;
   flex-direction: column;
   background: white;
-  width: 300px;
+  width: 50%;
   margin: 20px;
   padding: 13px;
 `
@@ -170,17 +168,17 @@ const Title = styled.div`
   color:black;
   text-align: left;
   margin-bottom: 10px;
-  `
-  const Input = styled.input`
-    width: 100%;
-    height: 30px;
-    color: #000000;
-    border: 0;
-    line-height: 120%;
-    font-size: 20px;
-    margin-bottom: 10px;
-    margin-top: 4px;
-    padding: 0 10px;
+`
+const Input = styled.input`
+  width: 100%;
+  height: 30px;
+  color: #000000;
+  border: 0;
+  line-height: 120%;
+  font-size: 20px;
+  margin-bottom: 10px;
+  margin-top: 4px;
+  padding: 0 10px;
 `
 
 const SearchText = styled.div`
@@ -226,7 +224,7 @@ const MonitorButton = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
-  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey')}
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
 `
 const Error = styled.div`
   position: relative;

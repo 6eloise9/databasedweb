@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import NHSbar from '../components/NHSbar'
 import ProfileBar from '../components/ProfileBar'
 import PatientSearch from '../components/PatientSearch'
+import MonitoredPatients from '../components/MonitoredPatients'
 import {useAuth} from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 
@@ -34,6 +35,7 @@ export default function Dashboard(props){
       <MainContainer>
         <TextLabel>Dialog Diabetic Patient Monitoring - Dashboard</TextLabel>
         <PatientSearch/>
+        <MonitoredPatients/>
       </MainContainer>
     </Background>
   )

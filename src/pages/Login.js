@@ -29,9 +29,10 @@ export default function Login() {
         auth.signOut()
       }
 
-      await login(emailInput.current.value, passwordInput.current.value)
+     await login(emailInput.current.value, passwordInput.current.value)
 
-      const querySnap = await getDocs(query(collection(db,"Doctors"), where("UID", "==", auth.currentUser.uid)))
+     {/*checking auth is dr before they are routed to dashboard*/}
+     const querySnap = await getDocs(query(collection(db,"Doctors"), where("UID", "==", auth.currentUser.uid)))
      if(querySnap.empty){
        throw new Error("Not a Doctor")
      }
