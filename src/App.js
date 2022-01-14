@@ -1,17 +1,18 @@
 import './App.css'
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom'
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
-import { ProvideAuth } from './utils/auth'
+import { ProvideAuth, useAuth } from './utils/auth'
 
 function App() {
+
   return (
     <ProvideAuth>
       <div className="App">
         <Router>
           <Routes>
-            <Route exact path="/" element = {<Dashboard/>} />
-            <Route path="/login" element={<Login/>} />
+            <Route path="/login" element = {<Login/>} />
+            <Route path="/" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
           </Routes>
         </Router>
 
@@ -21,6 +22,9 @@ function App() {
   )
 }
 
-
+function PrivateRoute({ children }) {
+  const { currentUser } = useAuth()
+  return currentUser ? children : <Navigate to='/login'/>
+}
 
 export default App
