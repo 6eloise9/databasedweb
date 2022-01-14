@@ -37,6 +37,7 @@ export default function Dashboard(props){
   }
 
 
+
   const getDoctor = async () => {
     const ref = db.collection('Doctors')
     const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
@@ -92,7 +93,7 @@ const TextLabel = styled.div`
   margin-bottom: 100px;
 `
 const MainContainer = styled.div`
-  position: flex;
+  display: flex;
   flex-direction:column;
   justify-content: space-around;
   margin-left: 60px;
