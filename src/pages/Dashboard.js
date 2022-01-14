@@ -3,12 +3,16 @@ import styled from 'styled-components'
 import NHSbar from '../components/NHSbar'
 import ProfileBar from '../components/ProfileBar'
 import PatientSearch from '../components/PatientSearch'
+import MonitoredPatients from '../components/MonitoredPatients'
+import PatientViewer from '../components/PatientViewer';
 import {useAuth} from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
-import PatientViewer from '../components/PatientViewer';
+import { auth, db } from '../utils/firebase'
 
-export default function Dashboard(){
-  const[error, setError] = useState('')
+
+export default function Dashboard(props){
+  const [error, setError] = useState('')
+  const [doctor, setDoctor] = useState({})
   const {currentUser, logout} = useAuth()
   const navigate = useNavigate()
   const [storedPatient, selectPatient] = useState()
@@ -25,28 +29,50 @@ export default function Dashboard(){
     }
   }
 
+
   function selectPatientWrap(patient){
       console.log("Wrapper is called")
       console.log(patient.fName)
       selectPatient(patient)
   }
 
+
+  const getDoctor = async () => {
+    const ref = db.collection('Doctors')
+    const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
+      const drDoc = query.docs[0]
+      const drData = drDoc.data()
+      if((drData.lName != null) || (drData.fName != null)){
+        setDoctor(drData)
+      }
+    })
+  }
+
+  useEffect(() => {
+  {/* code here will run when page loads*/}
+   getDoctor()
+  }, [])
+
+
   return(
 
   <Background>
     <NHSbar/>
     <ProfileBar
-      fname = "Nettles"
-      lname = "Holloway"
+      fname = {doctor.fName}
+      lname = {doctor.lName}
       onLogoutClick = {onLogoutClick}
     />
       <MainContainer>
         <TextLabel>Dialog Diabetic Patient Monitoring - Dashboard</TextLabel>
+
         <PatientSearch 
-        returnPatient={(patient) => selectPatientWrap(patient)} 
-        returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}/>
-        <Spacer></Spacer>
+          returnPatient={(patient) => selectPatientWrap(patient)} 
+          returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}/>
+        <Spacer/>
         {isPatSelected && <PatientViewer patient={storedPatient}/>}
+
+        <MonitoredPatients/>
       </MainContainer>
     </Background>
   )
@@ -68,6 +94,7 @@ const TextLabel = styled.div`
 const MainContainer = styled.div`
   position: flex;
   flex-direction:column;
+  justify-content: space-around;
   margin-left: 60px;
 `
 

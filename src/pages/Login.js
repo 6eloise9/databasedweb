@@ -24,17 +24,23 @@ export default function Login() {
     try{
       setError('')
       setIsLoading(true)
+
+
       if(auth.currentUser==null){
         auth.signOut()
       }
-      await login(emailInput.current.value, passwordInput.current.value)
-      const querySnap = await getDocs(query(collection(db,"Doctors"), where("UID", "==", auth.currentUser.uid)))
-      if(querySnap.empty){
-        throw new Error("Not a Doctor")
-      }
+
+     await login(emailInput.current.value, passwordInput.current.value)
+
+     {/*checking auth is dr before they are routed to dashboard*/}
+     const querySnap = await getDocs(query(collection(db,"Doctors"), where("UID", "==", auth.currentUser.uid)))
+     if(querySnap.empty){
+       throw new Error("Not a Doctor")
+     }
+
       navigate('/')
-    } catch (e){
-        console.log(e)
+    } catch (e) {
+      console.log(e)
         setError("Login failed - please check credentials")
     }
     setIsLoading(false)
@@ -82,6 +88,9 @@ export default function Login() {
     </Background>
   )
 }
+
+
+
 
 const Background = styled.div`
   position: flex;
@@ -156,5 +165,4 @@ const Error = styled.div`
   color: white;
   text-align: center;
   font-size: 20px;
-
 `
