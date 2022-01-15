@@ -55,7 +55,8 @@ export default function MonitoredPatients({monitoredPatients, returnMonitoredPat
       console.log(newNums)
       returnMonitoredPatients(newPats)
       returnMonitoredPatientNums(newNums)
-      setSelectedPatient(newPats[0])
+      selectedPatient.NHSNumber = null
+      setSelectedPatient(selectedPatient)
   }
 
   function handleViewClick(){
@@ -190,7 +191,7 @@ const Button = styled.button`
   cursor: pointer;
   ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 `
-
+//${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 const UnmonitorButton = styled.button`
   height: 35px;
   width: 25%;
@@ -202,6 +203,7 @@ const UnmonitorButton = styled.button`
   cursor: pointer;
   ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 `
+//${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 const Input = styled.input`
   width: 30%;
   height: 25px;
