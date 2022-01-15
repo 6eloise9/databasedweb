@@ -8,16 +8,22 @@ import PatientViewer from '../components/PatientViewer';
 import {useAuth} from '../utils/auth'
 import { useNavigate } from 'react-router-dom'
 import { auth, db } from '../utils/firebase'
+import { collection, query, where, getDocs} from "firebase/firestore"
 
 
 export default function Dashboard(props){
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
   const [doctor, setDoctor] = useState({})
+  const [doctorDocReference, setDoctorDocReference] = useState()
   const {currentUser, logout} = useAuth()
   const navigate = useNavigate()
   const [storedPatient, selectPatient] = useState()
   const [isPatSelected, setPatSelected] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
+  const [monitoredPatientNums, setMonitoredPatientNums] = useState([])
+  const [monitoredPatients, setMonitoredPatients] = useState([])
+
 
   const onLogoutClick = async () => {
     setError('')
@@ -46,6 +52,7 @@ export default function Dashboard(props){
       const drData = drDoc.data()
       if((drData.lName != null) || (drData.fName != null)){
         setDoctor(drData)
+        setDoctorDocReference(drDoc)
       }
     })
   }
@@ -53,6 +60,40 @@ export default function Dashboard(props){
   useEffect(() => {
   {/* code here will run when page loads*/}
    getDoctor()
+
+   initializeLists()
+   
+
+   async function initializeLists(){
+
+   const cRef = collection(db, 'Doctors')
+   console.log("Query")
+   const qRef =  query(cRef, where("UID","==",auth.currentUser.uid))
+   const qSnap = await getDocs(qRef)
+   console.log(qSnap.docs[0].get("Following"))
+   const monitoredNums = qSnap.docs[0].get("Following")
+
+   console.log("Query")
+   if(monitoredNums.length != 0){
+   const cRef = collection(db, "TestPat")
+   const qRef = query(cRef, where("NHSNumber", "in", monitoredNums))
+   const qSnap = await getDocs(qRef)
+   var i =0
+   var array = []
+   qSnap.forEach(item =>{
+     array[i] = item.data()
+     i++
+   })
+   setMonitoredPatients(array)
+ }
+ else{
+   setMonitoredPatients([])
+ }
+ setMonitoredPatientNums(monitoredNums)
+ console.log(monitoredPatientNums)
+ console.log(monitoredPatients)
+ setIsLoading(false)
+  }
   }, [])
 
 
@@ -65,17 +106,28 @@ export default function Dashboard(props){
       lname = {doctor.lName}
       onLogoutClick = {onLogoutClick}
     />
-      <MainContainer>
+      {!isLoading && <MainContainer>
         <TextLabel>Dialog Diabetic Patient Monitoring - Dashboard</TextLabel>
 
         <PatientSearch 
           returnPatient={(patient) => selectPatientWrap(patient)} 
-          returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}/>
+          returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}
+          returnMonitoredPatients={(patients => setMonitoredPatients(patients))}
+          returnMonitoredPatientNums={(patientNums) => setMonitoredPatientNums(patientNums)}
+          monitoredPatients={monitoredPatients}
+          monitoredPatientNums={monitoredPatientNums}/>
         <Spacer/>
         {isPatSelected && <PatientViewer patient={storedPatient}/>}
 
-        <MonitoredPatients/>
-      </MainContainer>
+        <MonitoredPatients
+        returnMonitoredPatients={(patients => setMonitoredPatients(patients))}
+        returnMonitoredPatientNums={(patientNums) => setMonitoredPatientNums(patientNums)}
+        monitoredPatients={monitoredPatients}
+        monitoredPatientNums={monitoredPatientNums}
+        returnPatient={(patient) => selectPatientWrap(patient)} 
+        returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}
+        drRef = {doctorDocReference}/>
+      </MainContainer>}
     </Background>
   )
 }

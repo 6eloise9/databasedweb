@@ -1,79 +1,17 @@
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components"
 import { auth, db } from '../utils/firebase'
-import { collection, query, where, getDocs} from "firebase/firestore"
 import "firebase/compat/auth"
+import { arrayRemove, updateDoc, doc } from "firebase/firestore";
 
-export default function MonitoredPatients(){
-  const [monitoredPatients, setMonitoredPatients] = useState([])
+export default function MonitoredPatients({monitoredPatients, returnMonitoredPatients, monitoredPatientNums, returnMonitoredPatientNums, returnPatient, returnSelected, drRef}){
   const [selectedPatient, setSelectedPatient] = useState([])
-  const [monitoredPatientNums, setMonitoredPatientNums] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
   const [isFiltering, setIsFiltering] = useState(false)
-  
-  
- async function fetchPatientNums(){
-    {/*fetches data from database*/}
-    const cRef = collection(db, 'Doctors')
-    console.log("Query")
-    const qRef =  query(cRef, where("UID","==",auth.currentUser.uid))
-    const qSnap = await qRef.get()
-    setMonitoredPatients(qSnap[0].get("Following"))
-    await fetchPatients()
-  }
-
-  async function fetchPatients(){
-    console.log("Query")
-    if(monitoredPatientNums.length != 0){
-    const cRef = collection(db, "TestPat")
-    const qRef = query(cRef, where("NHSNumber", "in", monitoredPatientNums))
-    const qSnap = await qRef.getDocs()
-    var i =0
-    var array = []
-    qSnap.forEach(item =>{
-      array[i] = item.data()
-    })
-    setMonitoredPatients(array)
-  }
-  else{
-    setMonitoredPatients([])
-  }
-  }
 
 
   useEffect(() => {
   {/* code here will run when page loads and whenever state of monitored patients changes*/}
-
-    initializeLists()
-
-    async function initializeLists(){
-
-    const cRef = collection(db, 'Doctors')
-    console.log("Query")
-    const qRef =  query(cRef, where("UID","==",auth.currentUser.uid))
-    const qSnap = await getDocs(qRef)
-    console.log(qSnap.docs[0].get("Following"))
-    const monitoredNums = qSnap.docs[0].get("Following")
-
-    console.log("Query")
-    if(monitoredNums.length != 0){
-    const cRef = collection(db, "TestPat")
-    const qRef = query(cRef, where("NHSNumber", "in", monitoredNums))
-    const qSnap = await getDocs(qRef)
-    var i =0
-    var array = []
-    qSnap.forEach(item =>{
-      array[i] = item.data()
-    })
-    setMonitoredPatients(array)
-  }
-  else{
-    setMonitoredPatients([])
-  }
-  setMonitoredPatientNums(monitoredNums)
-  console.log(monitoredPatientNums)
-  console.log(monitoredPatients)
-   }
   },[])
 
 
@@ -92,6 +30,39 @@ export default function MonitoredPatients(){
     })
     setFilteredPatients(newPat)
     setIsFiltering(true)
+  }
+
+  function handleUnmonitorClick(){
+      const patDocRef = doc(db, "TestPat", selectedPatient.NHSNumber.trim())
+
+      updateDoc(patDocRef, {
+        Alerts: arrayRemove(drRef.get("email"))
+      })
+
+      updateDoc(drRef.ref, {
+        Following: arrayRemove(selectedPatient.NHSNumber)
+      })
+
+      var newNums = monitoredPatientNums.filter(function(value, index, arr){
+        return value != selectedPatient.NHSNumber
+      })
+
+      var newPats = monitoredPatients.filter(function(value, index, arr){
+        return value.NHSNumber != selectedPatient.NHSNumber
+      })
+
+      console.log(newPats)
+      console.log(newNums)
+      returnMonitoredPatients(newPats)
+      returnMonitoredPatientNums(newNums)
+      setSelectedPatient(newPats[0])
+  }
+
+  function handleViewClick(){
+      if(selectedPatient !=null){
+        returnSelected(true)
+        returnPatient(selectedPatient)
+      }
   }
 
   return(
@@ -113,7 +84,7 @@ export default function MonitoredPatients(){
                 <ResultItem
                   onClick={() => {setSelectedPatient(value); onPatientClick(value)}}
                   nhsNum = {value.NHSNumber}
-                  currentlySelected={selectedPatient.NHSNumber}>
+                  currentlySelected={selectedPatient.NHSNumber == value.NHSNumber}>
                   {value.fName} {value.lName}</ResultItem> )
               })
           }
@@ -122,15 +93,15 @@ export default function MonitoredPatients(){
               <ResultItem
                 onClick={() => {setSelectedPatient(value); onPatientClick(value)}}
                 nhsNum = {value.NHSNumber}
-                currentlySelected={selectedPatient.NHSNumber}>
+                currentlySelected={selectedPatient.NHSNumber == value.NHSNumber}>
                 {value.fName} {value.lName}</ResultItem> )
             })
         }
           </ResultBox>
         </WhiteContainer>
         <ButtonBox>
-          <Button onClick={() => console.log(monitoredPatientNums)}>View Patient Records</Button>
-          <UnmonitorButton >Unmonitor Patient</UnmonitorButton>
+          <Button onClick={() => handleViewClick()}>View Patient Records</Button>
+          <UnmonitorButton onClick={() => handleUnmonitorClick()}>Unmonitor Patient</UnmonitorButton>
         </ButtonBox>
       </Container>
     </Card>
@@ -190,7 +161,7 @@ const ResultItem = styled.div`
     background: #005EB870;
     border: 1px solid #005EB890 ;
   }
- ${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
+ ${({currentlySelected}) => (currentlySelected && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
 `
 
 const Text = styled.div`

@@ -5,7 +5,8 @@ import { collection, query, where, getDocs} from "firebase/firestore"
 import "firebase/compat/auth"
 
 
-export default function PatientSearch({returnPatient, returnSelected}){
+export default function PatientSearch({returnPatient, returnSelected, returnMonitoredPatients, returnMonitoredPatientNums, monitoredPatients, monitoredPatientNums}){
+
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState()
@@ -48,6 +49,7 @@ export default function PatientSearch({returnPatient, returnSelected}){
         drDoc.ref.update(
           {Following: [newpatientnum]}
         )
+        updatePatientAlerts(drData)
       }
     })
   }
@@ -62,7 +64,6 @@ export default function PatientSearch({returnPatient, returnSelected}){
       const queryRef = await ref.where('NHSNumber', '==', selectedPatient.NHSNumber).limit(1).get().then(query => {
         const patDoc = query.docs[0]
         let patData = patDoc.data()
-        console.log(patData)
         if(patData.Alerts != null){
           const oldAlerts = patData.Alerts
           const oldAlertsLC = oldAlerts.map(alert => alert.toLowerCase())
@@ -78,6 +79,13 @@ export default function PatientSearch({returnPatient, returnSelected}){
           )
         }
       })
+      console.log("UPDATING MONITORED LIST")
+      console.log(monitoredPatients)
+      console.log(selectedPatient)
+      console.log([...monitoredPatients, selectedPatient])
+      console.log([...monitoredPatientNums, selectedPatient.NHSNumber])
+      returnMonitoredPatientNums([...monitoredPatientNums, selectedPatient.NHSNumber])
+      returnMonitoredPatients([...monitoredPatients, selectedPatient])
     }
   }
 
