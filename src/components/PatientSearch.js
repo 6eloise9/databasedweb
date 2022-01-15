@@ -11,7 +11,6 @@ export default function PatientSearch({returnPatient, returnSelected}){
   const [selectedPatient, setSelectedPatient] = useState()
   const [isPatientSelected, patientSelected] = useState(false)
   const [input, setInput] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState([])
   const [error, setError] = useState('')
 
   const fetch = async () => {
