@@ -11,15 +11,17 @@ export default function PatientSearch({returnPatient, returnSelected}){
   const [selectedPatient, setSelectedPatient] = useState()
   const [isPatientSelected, patientSelected] = useState(false)
   const [input, setInput] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState([])
   const [error, setError] = useState('')
 
   const fetch = async () => {
     {/*fetches data from database*/}
-    const patientsRef = await db.collection('TestPat')
+    const patientsRef = db.collection('TestPat')
     patientsRef.onSnapshot(snapshot => {
+      console.log(snapshot)
       setPatients(snapshot.docs.map(doc => doc.data()))
+      console.log(snapshot.docs.map(doc => doc.data()))
     })
+    
   }
 
   useEffect(() => {
@@ -29,6 +31,7 @@ export default function PatientSearch({returnPatient, returnSelected}){
 
   const updateFollowingList = async (newpatientnum) => {
     const ref = db.collection('Doctors')
+    console.log("Query")
     const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
       const drDoc = query.docs[0]
       let drData = drDoc.data()
@@ -55,6 +58,7 @@ export default function PatientSearch({returnPatient, returnSelected}){
       setError('Your account has no associated email. Alerts will not reach you. Contact Admin')
     } else {
       const ref = db.collection('TestPat')
+      console.log("Query")
       const queryRef = await ref.where('NHSNumber', '==', selectedPatient.NHSNumber).limit(1).get().then(query => {
         const patDoc = query.docs[0]
         let patData = patDoc.data()
@@ -74,6 +78,13 @@ export default function PatientSearch({returnPatient, returnSelected}){
           )
         }
       })
+    }
+  }
+
+  function handleViewClick(){
+    if(selectedPatient!=null){
+      returnPatient(selectedPatient)
+      returnSelected(true)
     }
   }
 
@@ -124,14 +135,14 @@ export default function PatientSearch({returnPatient, returnSelected}){
               <ResultItem
                 onClick={() => {setSelectedPatient(value); onPatientClick(value); setError('')}}
                 nhsNum = {value.NHSNumber}
-                currentlySelected={selectedPatient.NHSNumber}>
+                >
                 {value.fName} {value.lName}</ResultItem> )
           })
         }
         </ResultBox>
         <ButtonBox>
           <MonitorButton selected={selectedPatient} onClick = {() => updateFollowingList(selectedPatient.NHSNumber)}>Monitor Patient</MonitorButton>
-          <MonitorButton selected={selectedPatient}>View Patient</MonitorButton>
+          <MonitorButton selected={selectedPatient}onClick = {() => handleViewClick()}>View Patient</MonitorButton>
         </ButtonBox>
 
       </RightContainer>
@@ -204,9 +215,8 @@ const ResultItem = styled.div`
     background: #005EB870;
     border: 1px solid #005EB890 ;
   }
-  ${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
-`
-
+`//${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
+//currentlySelected={value.NHSNumber==selectedPatient.NHSNumber}
 const ResultBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -228,8 +238,8 @@ const MonitorButton = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
-  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
 `
+//${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
 const Error = styled.div`
   position: relative;
   background #FF000090 ;

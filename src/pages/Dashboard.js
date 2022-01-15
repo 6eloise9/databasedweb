@@ -40,6 +40,7 @@ export default function Dashboard(props){
 
   const getDoctor = async () => {
     const ref = db.collection('Doctors')
+    console.log(auth.currentUser.uid)
     const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
       const drDoc = query.docs[0]
       const drData = drDoc.data()

@@ -10,40 +10,75 @@ export default function MonitoredPatients(){
   const [monitoredPatientNums, setMonitoredPatientNums] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
   const [isFiltering, setIsFiltering] = useState(false)
-  const fetchPatientNums = async () => {
+  
+  
+ async function fetchPatientNums(){
     {/*fetches data from database*/}
-    const drRef = await db.collection('Doctors')
-    drRef.onSnapshot(snapshot => {
-      const queryRef = drRef.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
-      const drDoc = query.docs[0]
-      const drData = drDoc.data()
-      const patientNums = drData.Following
-      setMonitoredPatientNums(patientNums)
-      fetchPatients()
-      })
-    })
+    const cRef = collection(db, 'Doctors')
+    console.log("Query")
+    const qRef =  query(cRef, where("UID","==",auth.currentUser.uid))
+    const qSnap = await qRef.get()
+    setMonitoredPatients(qSnap[0].get("Following"))
+    await fetchPatients()
   }
 
-  const fetchPatients = () => {
-    const pRef = db.collection('TestPat')
-    pRef.onSnapshot(snapshot => {
-      let pqueryRef = pRef.where('NHSNumber', 'in', monitoredPatientNums).get().then(query => {
-        const patDocs = query.docs
-        let array = []
-        for (let x in patDocs){
-        array[x] = patDocs[x].data()
-        }
-        setMonitoredPatients(array)
-      })
+  async function fetchPatients(){
+    console.log("Query")
+    if(monitoredPatientNums.length != 0){
+    const cRef = collection(db, "TestPat")
+    const qRef = query(cRef, where("NHSNumber", "in", monitoredPatientNums))
+    const qSnap = await qRef.getDocs()
+    var i =0
+    var array = []
+    qSnap.forEach(item =>{
+      array[i] = item.data()
     })
+    setMonitoredPatients(array)
+  }
+  else{
+    setMonitoredPatients([])
+  }
   }
 
 
   useEffect(() => {
   {/* code here will run when page loads and whenever state of monitored patients changes*/}
-   fetchPatientNums()
-  },[monitoredPatients, monitoredPatientNums])
 
+    initializeLists()
+
+    async function initializeLists(){
+
+    const cRef = collection(db, 'Doctors')
+    console.log("Query")
+    const qRef =  query(cRef, where("UID","==",auth.currentUser.uid))
+    const qSnap = await getDocs(qRef)
+    console.log(qSnap.docs[0].get("Following"))
+    const monitoredNums = qSnap.docs[0].get("Following")
+
+    console.log("Query")
+    if(monitoredNums.length != 0){
+    const cRef = collection(db, "TestPat")
+    const qRef = query(cRef, where("NHSNumber", "in", monitoredNums))
+    const qSnap = await getDocs(qRef)
+    var i =0
+    var array = []
+    qSnap.forEach(item =>{
+      array[i] = item.data()
+    })
+    setMonitoredPatients(array)
+  }
+  else{
+    setMonitoredPatients([])
+  }
+  setMonitoredPatientNums(monitoredNums)
+  console.log(monitoredPatientNums)
+  console.log(monitoredPatients)
+   }
+  },[])
+
+
+
+  
   async function onPatientClick(value){
     const temp = value
     setSelectedPatient(temp)
@@ -94,8 +129,8 @@ export default function MonitoredPatients(){
           </ResultBox>
         </WhiteContainer>
         <ButtonBox>
-          <Button selected={selectedPatient}>View Patient Records</Button>
-          <UnmonitorButton selected={selectedPatient}>Unmonitor Patient</UnmonitorButton>
+          <Button onClick={() => console.log(monitoredPatientNums)}>View Patient Records</Button>
+          <UnmonitorButton >Unmonitor Patient</UnmonitorButton>
         </ButtonBox>
       </Container>
     </Card>
@@ -182,7 +217,6 @@ const Button = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
-  ${(props) => (props.selected.length == 0 && 'visibility: hidden')}
 `
 
 const UnmonitorButton = styled.button`
@@ -194,7 +228,6 @@ const UnmonitorButton = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
-  ${(props) => (props.selected.length == 0 && 'visibility: hidden')}
 `
 const Input = styled.input`
   width: 30%;

@@ -18,6 +18,29 @@ export default function PatientViewer({patient}){
     const [foodSubType, setFoodSubtype] = useState("Calories");
     const [chartYAxis, setChartYAxis] = useState("Blood Sugar Concentration (mmol/L)")
 
+    async function exportToCSV(patient){
+      const rawData = await collectData(getQueryDetails(property))
+      const dates = rawData.timestamps
+      const vals = rawData.values
+
+      var tableData = []
+      var CSVData = "data:text/csv;charset=utf-8,"
+
+      for(var i=0; i<dates.length;i++){
+        tableData.push([dates[i], vals[i]])
+        CSVData += tableData[i].join(",") + "\r\n";
+      }
+
+
+      var encodedUri = encodeURI(CSVData);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", property+patient.NHSNumber+".csv");
+      document.body.appendChild(link); // Required for FF
+
+      link.click()
+      }
+
     async function generateGraph(){
       const rawData = await collectData(getQueryDetails(property))
       const dates = rawData.timestamps
@@ -95,6 +118,7 @@ export default function PatientViewer({patient}){
             <PropertyButton onClick={()=>setProperty("Exercise")} active={property=="Exercise"}>Exercise</PropertyButton>
 
             <GraphButton onClick={()=>generateGraph(patient)}>View</GraphButton>
+            <GraphButton onClick={()=>exportToCSV(patient)}>Export</GraphButton>
         </LPropertyBar>
 
         <RPropertyBar>
