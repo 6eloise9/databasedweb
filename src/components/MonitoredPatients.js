@@ -16,7 +16,7 @@ export default function MonitoredPatients({monitoredPatients, returnMonitoredPat
 
 
 
-  
+
   async function onPatientClick(value){
     const temp = value
     setSelectedPatient(temp)
