@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 
+
 import {
   CartesianGrid,
   Legend,
@@ -18,24 +19,24 @@ import {
 //which can be found here: https://github.com/recharts/recharts/issues/956
 //all credit for the below code goes to him
 const TimeSeriesChart = ({ chartData, chartYAxis}) => (
-  <ResponsiveContainer height = '95%' width = {500} >
-    <ScatterChart>
+  <ResponsiveContainer>
+    <ScatterChart height = '100%' width = "100%">
       <XAxis
         dataKey = 'processedTime'
         domain = {['auto', 'auto']}
         name = 'Time'
-        tickFormatter = {(unixTime) => moment(unixTime).format('Do MMMM')}
+        tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
         type = 'number'
         stroke = "blue"
       ><Label value="Time" offset={0} position="insideBottom"></Label></XAxis>
       <YAxis dataKey = 'value' name = 'Value' stroke = "blue">
-          <Label value= {chartYAxis} angle={-90} position="insideLeft" ></Label>
+          <Label value= {chartYAxis} angle={-90} position="insideBottomLeft" ></Label>
       </YAxis>
-          
+
 
       <Scatter
         data = {chartData}
-        line = {{ stroke: '#eee' }}
+        line = {{ stroke: 'black' }}
         lineJointType = 'monotoneX'
         lineType = 'joint'
         name = 'Values'
@@ -53,5 +54,6 @@ TimeSeriesChart.propTypes = {
     })
   ).isRequired
 }
+
 
 export default TimeSeriesChart
