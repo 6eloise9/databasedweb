@@ -10,6 +10,7 @@ export default function MonitoredPatients(){
   const [monitoredPatientNums, setMonitoredPatientNums] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
   const [isFiltering, setIsFiltering] = useState(false)
+
   const fetchPatientNums = async () => {
     {/*fetches data from database*/}
     const drRef = await db.collection('Doctors')
@@ -25,8 +26,7 @@ export default function MonitoredPatients(){
   }
 
   const fetchPatients = () => {
-    const pRef = db.collection('TestPat')
-    pRef.onSnapshot(snapshot => {
+    const pRef = db.collection('Patients')
       let pqueryRef = pRef.where('NHSNumber', 'in', monitoredPatientNums).get().then(query => {
         const patDocs = query.docs
         let array = []
@@ -35,14 +35,13 @@ export default function MonitoredPatients(){
         }
         setMonitoredPatients(array)
       })
-    })
-  }
 
+  }
 
   useEffect(() => {
   {/* code here will run when page loads and whenever state of monitored patients changes*/}
    fetchPatientNums()
-  },[monitoredPatients, monitoredPatientNums])
+  },[])
 
   async function onPatientClick(value){
     const temp = value
@@ -59,6 +58,26 @@ export default function MonitoredPatients(){
     setIsFiltering(true)
   }
 
+{/*
+  const unmonitorPatient = async () => {
+    const ref = db.collection('Doctors')
+    const pRef = db.collection('TestPat')
+    const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
+      const drDoc = query.docs[0]
+      let drData = drDoc.data()
+      if(drData.Following != null){
+
+        } else {
+          setError('You are already monitoring this patient')
+        }
+      } else {
+        drDoc.ref.update(
+          {Following: [newpatientnum]}
+        )
+      }
+    })
+  }
+*/}
   return(
     <Card>
       <Container>
@@ -94,7 +113,7 @@ export default function MonitoredPatients(){
           </ResultBox>
         </WhiteContainer>
         <ButtonBox>
-          <Button selected={selectedPatient}>View Patient Records</Button>
+          <Button selected={selectedPatient} >View Patient Records</Button>
           <UnmonitorButton selected={selectedPatient}>Unmonitor Patient</UnmonitorButton>
         </ButtonBox>
       </Container>
@@ -180,9 +199,9 @@ const Button = styled.button`
   border: 2px solid black;
   text-decoration: none;
   text-color: white;
-  margin-top: 5px;
+  margin-top: 8px;
   cursor: pointer;
-  ${(props) => (props.selected.length == 0 && 'visibility: hidden')}
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
 `
 
 const UnmonitorButton = styled.button`
@@ -192,9 +211,9 @@ const UnmonitorButton = styled.button`
   border: 2px solid black;
   text-decoration: none;
   text-color: white;
-  margin-top: 5px;
+  margin-top: 8px;
   cursor: pointer;
-  ${(props) => (props.selected.length == 0 && 'visibility: hidden')}
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
 `
 const Input = styled.input`
   width: 30%;

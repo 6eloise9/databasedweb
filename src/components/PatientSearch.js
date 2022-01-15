@@ -14,7 +14,7 @@ export default function PatientSearch(){
 
   const fetch = async () => {
     {/*fetches data from database*/}
-    const patientsRef = await db.collection('TestPat')
+    const patientsRef = await db.collection('Patients')
     patientsRef.onSnapshot(snapshot => {
       setPatients(snapshot.docs.map(doc => doc.data()))
     })
@@ -48,15 +48,13 @@ export default function PatientSearch(){
   }
 
   const updatePatientAlerts = async (doctor) => {
-    console.log(doctor.email)
     if (doctor.email == null){
       setError('Your account has no associated email. Alerts will not reach you. Contact Admin')
     } else {
-      const ref = db.collection('TestPat')
+      const ref = db.collection('Patients')
       const queryRef = await ref.where('NHSNumber', '==', selectedPatient.NHSNumber).limit(1).get().then(query => {
         const patDoc = query.docs[0]
         let patData = patDoc.data()
-        console.log(patData)
         if(patData.Alerts != null){
           const oldAlerts = patData.Alerts
           const oldAlertsLC = oldAlerts.map(alert => alert.toLowerCase())

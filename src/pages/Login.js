@@ -56,6 +56,7 @@ export default function Login() {
 
         <Form>
           {/* EMAIL */}
+
           <InputContainer>
             <Input
               placeholder= 'email'
@@ -164,4 +165,12 @@ const Error = styled.div`
   color: white;
   text-align: center;
   font-size: 20px;
+`
+const Text = styled.div`
+  position: relative;
+  font-size: 15px;
+  color:black;
+  text-align: left;
+  font-weight: bold;
+  margin-bottom: 5px;
 `

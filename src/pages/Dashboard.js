@@ -53,7 +53,7 @@ export default function Dashboard(props){
       <MainContainer>
         <TextLabel>Dialog Diabetic Patient Monitoring - Dashboard</TextLabel>
         <PatientSearch/>
-        <MonitoredPatients/>
+      {/*  <MonitoredPatients/> */}
       </MainContainer>
     </Background>
   )
