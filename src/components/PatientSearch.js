@@ -5,19 +5,22 @@ import { collection, query, where, getDocs} from "firebase/firestore"
 import "firebase/compat/auth"
 
 
-export default function PatientSearch(){
+export default function PatientSearch({returnPatient, returnSelected}){
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
-  const [input, setInput] = useState('');
   const [selectedPatient, setSelectedPatient] = useState([])
+  const [isPatientSelected, patientSelected] = useState(false)
   const [error, setError] = useState('')
 
   const fetch = async () => {
     {/*fetches data from database*/}
-    const patientsRef = await db.collection('Patients')
+    const patientsRef = await db.collection('TestPat')
     patientsRef.onSnapshot(snapshot => {
+      console.log(snapshot)
       setPatients(snapshot.docs.map(doc => doc.data()))
+      console.log(snapshot.docs.map(doc => doc.data()))
     })
+
   }
 
   useEffect(() => {
@@ -27,6 +30,7 @@ export default function PatientSearch(){
 
   const updateFollowingList = async (newpatientnum) => {
     const ref = db.collection('Doctors')
+    console.log("Query")
     const queryRef = await ref.where('UID', '==', auth.currentUser.uid).limit(1).get().then(query => {
       const drDoc = query.docs[0]
       let drData = drDoc.data()
@@ -51,7 +55,7 @@ export default function PatientSearch(){
     if (doctor.email == null){
       setError('Your account has no associated email. Alerts will not reach you. Contact Admin')
     } else {
-      const ref = db.collection('Patients')
+      const ref = db.collection('TestPat')
       const queryRef = await ref.where('NHSNumber', '==', selectedPatient.NHSNumber).limit(1).get().then(query => {
         const patDoc = query.docs[0]
         let patData = patDoc.data()
@@ -73,6 +77,13 @@ export default function PatientSearch(){
     }
   }
 
+  function handleViewClick(){
+    if(selectedPatient!=null){
+      returnPatient(selectedPatient)
+      returnSelected(true)
+    }
+  }
+
   const handleChange = async (e) => {
     const searchseq = e.target.value
     const newPat = patients.filter((value) => {
@@ -90,7 +101,9 @@ export default function PatientSearch(){
   async function onPatientClick(value){
     const temp = value
     setSelectedPatient(temp)
+
   }
+
 
   return(
     <MainContainer>
@@ -113,19 +126,21 @@ export default function PatientSearch(){
       <RightContainer>
         <SearchText>Search Results</SearchText>
         <ResultBox>
+
           {filteredPatients.length != 0 && filteredPatients.map((value,key) => {
             return (
               <ResultItem
                 onClick={() => {setSelectedPatient(value); onPatientClick(value); setError('')}}
                 nhsNum = {value.NHSNumber}
-                currentlySelected={selectedPatient.NHSNumber}>
+                currentlySelected = {selectedPatient}
+                >
                 {value.fName} {value.lName}</ResultItem> )
           })
         }
         </ResultBox>
         <ButtonBox>
           <MonitorButton selected={selectedPatient} onClick = {() => updateFollowingList(selectedPatient.NHSNumber)}>Monitor Patient</MonitorButton>
-          <MonitorButton selected={selectedPatient}>View Patient</MonitorButton>
+          <MonitorButton selected={selectedPatient}onClick = {() => handleViewClick()}>View Patient</MonitorButton>
         </ButtonBox>
 
       </RightContainer>
@@ -137,7 +152,7 @@ export default function PatientSearch(){
 const MainContainer = styled.div`
   position: relative;
   display: flex;
-  width: 40vw;
+  width: 37vw;
   height: 315px;
   background: #C4C4C4;
 `
@@ -165,6 +180,7 @@ const Title = styled.div`
   color:black;
   text-align: left;
   margin-bottom: 10px;
+
 `
 const Input = styled.input`
   width: 100%;
@@ -197,9 +213,12 @@ const ResultItem = styled.div`
     background: #005EB870;
     border: 1px solid #005EB890 ;
   }
-  ${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
+  ${(props) => ((props.nhsNum == props.currentlySelected.NHSNumber) && 'background: #005EB890; text-color: white; border: 1px dashed black;')};
 `
-
+{/*
+${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
+  currentlySelected={value.NHSNumber==selectedPatient.NHSNumber}
+  */}
 const ResultBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -221,8 +240,9 @@ const MonitorButton = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
-  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 `
+//${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
 const Error = styled.div`
   position: relative;
   background #FF000090 ;
@@ -232,5 +252,4 @@ const Error = styled.div`
   color: white;
   text-align: center;
   font-size: 15px;
-
 `

@@ -25,6 +25,7 @@ export default function Login() {
       setError('')
       setIsLoading(true)
 
+
       if(auth.currentUser==null){
         auth.signOut()
       }
@@ -34,7 +35,7 @@ export default function Login() {
      {/*checking auth is dr before they are routed to dashboard*/}
      const querySnap = await getDocs(query(collection(db,"Doctors"), where("UID", "==", auth.currentUser.uid)))
      if(querySnap.empty){
-       throw new Error("Not a Doctor")
+       throw "Not a Doctor"
      }
 
       navigate('/')
