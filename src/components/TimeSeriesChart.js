@@ -24,7 +24,7 @@ const TimeSeriesChart = ({ chartData, chartYAxis}) => (
         dataKey = 'processedTime'
         domain = {['auto', 'auto']}
         name = 'Time'
-        tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')}
+        tickFormatter = {(unixTime) => moment(unixTime).format('Do MMMM')}
         type = 'number'
         stroke = "blue"
       ><Label value="Time" offset={0} position="insideBottom"></Label></XAxis>
