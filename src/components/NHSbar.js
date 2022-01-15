@@ -12,7 +12,7 @@ export default function NHSbar() {
 
 const Container = styled.div`
   height: 80px;
-  width:100vw;
+  width:106vw;
   background: #005EB8;
 `
 

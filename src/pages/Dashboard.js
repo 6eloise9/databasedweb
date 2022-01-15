@@ -62,7 +62,7 @@ export default function Dashboard(props){
    getDoctor()
 
    initializeLists()
-   
+
 
    async function initializeLists(){
 
@@ -106,33 +106,41 @@ export default function Dashboard(props){
       lname = {doctor.lName}
       onLogoutClick = {onLogoutClick}
     />
-      {!isLoading && <MainContainer>
-        <TextLabel>Dialog Diabetic Patient Monitoring - Dashboard</TextLabel>
+      {!isLoading &&
+      <MainContainer>
+        <LeftContainer>
 
-        <PatientSearch 
-          returnPatient={(patient) => selectPatientWrap(patient)} 
-          returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}
+          <TextLabel>Dialog Diabetic Patient Monitoring - Dashboard</TextLabel>
+
+          <PatientSearch
+            returnPatient={(patient) => selectPatientWrap(patient)}
+            returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}
+            returnMonitoredPatients={(patients => setMonitoredPatients(patients))}
+            returnMonitoredPatientNums={(patientNums) => setMonitoredPatientNums(patientNums)}
+            monitoredPatients={monitoredPatients}
+            monitoredPatientNums={monitoredPatientNums}/>
+
+
+          <MonitoredPatients
           returnMonitoredPatients={(patients => setMonitoredPatients(patients))}
           returnMonitoredPatientNums={(patientNums) => setMonitoredPatientNums(patientNums)}
           monitoredPatients={monitoredPatients}
-          monitoredPatientNums={monitoredPatientNums}/>
-        <Spacer/>
-        {isPatSelected && <PatientViewer patient={storedPatient}/>}
+          monitoredPatientNums={monitoredPatientNums}
+          returnPatient={(patient) => selectPatientWrap(patient)}
+          returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}
+          drRef = {doctorDocReference}/>
 
-        <MonitoredPatients
-        returnMonitoredPatients={(patients => setMonitoredPatients(patients))}
-        returnMonitoredPatientNums={(patientNums) => setMonitoredPatientNums(patientNums)}
-        monitoredPatients={monitoredPatients}
-        monitoredPatientNums={monitoredPatientNums}
-        returnPatient={(patient) => selectPatientWrap(patient)} 
-        returnSelected={(isPatSelected) => setPatSelected({isPatSelected})}
-        drRef = {doctorDocReference}/>
+        </LeftContainer>
+
+        <RightContainer>
+         <PatientViewer  selected={isPatSelected} patient={storedPatient}/>
+        </RightContainer>
       </MainContainer>}
     </Background>
   )
 }
 
-
+{/*
 const Background = styled.div`
   position: flex;
   flex-direction: column;
@@ -152,6 +160,47 @@ const MainContainer = styled.div`
   margin-left: 60px;
 `
 
+const Spacer = styled.div`
+  position: relative;
+  display: flex;
+  width: 1000px;
+  height: 30px;
+  background: #FFFFFF;
+
+`
+*/}
+
+const Background = styled.div`
+  position: flex;
+  justify-content: flex-start;
+`
+const TextLabel = styled.div`
+  position: relative;
+  font-size: 30px;
+  color:black;
+  text-align: left;
+  top: 30px;
+  margin-bottom: 6vh;
+
+`
+const LeftContainer = styled.div`
+  display: flex;
+  flex-direction:column;
+
+  margin-left: 3vw;
+`
+const MainContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+  margin-left: 60px;
+`
+const RightContainer = styled.div`
+  display: flex;
+  position: relative;
+  flex-direction:column;
+  justify-content: space-around;
+  margin-left: 1vw;
+`
 const Spacer = styled.div`
   position: relative;
   display: flex;

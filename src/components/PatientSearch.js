@@ -9,20 +9,20 @@ export default function PatientSearch({returnPatient, returnSelected, returnMoni
 
   const [patients, setPatients] = useState([])
   const [filteredPatients, setFilteredPatients] = useState([])
-  const [selectedPatient, setSelectedPatient] = useState()
+  const [selectedPatient, setSelectedPatient] = useState([])
   const [isPatientSelected, patientSelected] = useState(false)
   const [input, setInput] = useState('');
   const [error, setError] = useState('')
 
   const fetch = async () => {
     {/*fetches data from database*/}
-    const patientsRef = db.collection('TestPat')
+    const patientsRef = db.collection('Patients')
     patientsRef.onSnapshot(snapshot => {
       console.log(snapshot)
       setPatients(snapshot.docs.map(doc => doc.data()))
       console.log(snapshot.docs.map(doc => doc.data()))
     })
-    
+
   }
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function PatientSearch({returnPatient, returnSelected, returnMoni
     if (doctor.email == null){
       setError('Your account has no associated email. Alerts will not reach you. Contact Admin')
     } else {
-      const ref = db.collection('TestPat')
+      const ref = db.collection('Patients')
       console.log("Query")
       const queryRef = await ref.where('NHSNumber', '==', selectedPatient.NHSNumber).limit(1).get().then(query => {
         const patDoc = query.docs[0]
@@ -143,6 +143,7 @@ export default function PatientSearch({returnPatient, returnSelected, returnMoni
               <ResultItem
                 onClick={() => {setSelectedPatient(value); onPatientClick(value); setError('')}}
                 nhsNum = {value.NHSNumber}
+                selected = {selectedPatient}
                 >
                 {value.fName} {value.lName}</ResultItem> )
           })
@@ -150,7 +151,7 @@ export default function PatientSearch({returnPatient, returnSelected, returnMoni
         </ResultBox>
         <ButtonBox>
           <MonitorButton selected={selectedPatient} onClick = {() => updateFollowingList(selectedPatient.NHSNumber)}>Monitor Patient</MonitorButton>
-          <MonitorButton selected={selectedPatient}onClick = {() => handleViewClick()}>View Patient</MonitorButton>
+          <MonitorButton selected={selectedPatient} onClick = {() => handleViewClick()}>View Patient</MonitorButton>
         </ButtonBox>
 
       </RightContainer>
@@ -223,8 +224,8 @@ const ResultItem = styled.div`
     background: #005EB870;
     border: 1px solid #005EB890 ;
   }
-`//${(props) => ((props.nhsNum == props.currentlySelected) && 'background: #005EB890; text-color: white; border: 1px dashed black;')}
-//currentlySelected={value.NHSNumber==selectedPatient.NHSNumber}
+   ${(props) => ((props.nhsNum == props.selected.NHSNumber) && 'background: #005EB890; text-color: white; border: 1px dashed black;')};
+`
 const ResultBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -246,8 +247,9 @@ const MonitorButton = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 `
-//${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')}
+
 const Error = styled.div`
   position: relative;
   background #FF000090 ;

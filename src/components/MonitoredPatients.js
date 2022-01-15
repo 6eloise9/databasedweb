@@ -33,7 +33,7 @@ export default function MonitoredPatients({monitoredPatients, returnMonitoredPat
   }
 
   function handleUnmonitorClick(){
-      const patDocRef = doc(db, "TestPat", selectedPatient.NHSNumber.trim())
+      const patDocRef = doc(db, "Patients", selectedPatient.NHSNumber.trim())
 
       updateDoc(patDocRef, {
         Alerts: arrayRemove(drRef.get("email"))
@@ -100,8 +100,8 @@ export default function MonitoredPatients({monitoredPatients, returnMonitoredPat
           </ResultBox>
         </WhiteContainer>
         <ButtonBox>
-          <Button onClick={() => handleViewClick()}>View Patient Records</Button>
-          <UnmonitorButton onClick={() => handleUnmonitorClick()}>Unmonitor Patient</UnmonitorButton>
+          <Button selected={selectedPatient} onClick={() => handleViewClick()}>View Patient Records</Button>
+          <UnmonitorButton selected={selectedPatient} onClick={() => handleUnmonitorClick()}>Unmonitor Patient</UnmonitorButton>
         </ButtonBox>
       </Container>
     </Card>
@@ -188,6 +188,7 @@ const Button = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 `
 
 const UnmonitorButton = styled.button`
@@ -199,6 +200,7 @@ const UnmonitorButton = styled.button`
   text-color: white;
   margin-top: 5px;
   cursor: pointer;
+  ${(props) => (props.selected.length == 0 && 'background: #005EB830; border: 2px dashed grey; cursor: auto')};
 `
 const Input = styled.input`
   width: 30%;

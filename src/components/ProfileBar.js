@@ -20,7 +20,7 @@ export default function ProfileBar(props){
 const GreyBar = styled.div`
   position: relative;
   display: flex;
-  width: 100vw;
+  width: 106vw;
   height: 30px;
   justify-content: space-between;
   align-items: center;
