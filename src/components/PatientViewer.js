@@ -63,12 +63,16 @@ export default function PatientViewer({patient, selected}){
     }
 
     async function collectData(details){
-        const patientDocRef = doc(db, "TestPat", patient.NHSNumber)
+        console.log(patient.NHSNumber)
+        const patientDocRef = doc(db, "Patients", patient.NHSNumber)
         const colReference  = collection(patientDocRef, details.collectionName)
-        const start = Timestamp.fromDate(new Date("2022-01-01"))
-        const end = Timestamp.fromDate(new Date("2022-12-31"))
+        //const start = Timestamp.fromDate(new Date("2022-01-01"))
+        //const end = Timestamp.fromDate(new Date("2022-12-31"))
+        const start = Timestamp.fromDate(startDate)
+        const end = Timestamp.fromDate(endDate)
 
         const qSnap = await getDocs(query(colReference, where("Time", ">", start), where("Time", "<", end)))
+        console.log(qSnap)
         console.log(details.collectionName)
         console.log(details.targetField)
         var timestamps = new Array(qSnap.size)
